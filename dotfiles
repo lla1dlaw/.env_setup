@@ -1,0 +1,28 @@
+#!/usr/env/bin bash
+
+set -e
+
+PACKAGE_MANAGER="other"
+
+if command -v apt > /dev/null 2>&1; then
+  PACKAGE_MANAGER=apt
+elif command -v dnf > /dev/null 2>&1; then
+  PACKAGE_MANAGER=dnf
+elif command -v yum > /dev/null 2>&1; then
+  PACKAGE_MANAGER=yum
+elif command -v zypper > /dev/null 2>&1; then
+  PACKAGE_MANAGER=zypper
+elif command -v pacman > /dev/null 2>&1; then
+  PACKAGE_MANAGER=pacman
+else
+    echo "No known package manager found"
+    exit 1
+fi
+
+if [ -x "$(command -v ansible)" ]; do 
+  sudo "$(PACKAGE_MANAGER)" -y update 
+  sudo "$(PACKAGE_MANAGER)" install -y ansible 
+fi
+
+ansible-playbook main.yml
+

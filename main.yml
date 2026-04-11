@@ -1,0 +1,19 @@
+---
+- name: Setup Personal Development Environment
+  hosts: localhost
+  connection: local
+  gather_facts: true # Required to get ansible_os_family
+
+  vars_files:
+    - packages/brew.yml
+    - packages/cargo.yml
+    - "packages/{{ ansible_os_family }}.yml" # Dynamically targets OS
+
+  tasks:
+    - name: Phase 1 - Bootstrap Package Managers
+      ansible.builtin.include_tasks: tasks/setup_homebrew.yml
+      ansible.builtin.include_tasks: tasks/setup_rust.yml
+      ansible.builtin.include_tasks: tasks/setup_uv.yml
+
+    - name: Phase 2 - Install All Packages
+      ansible.builtin.include_tasks: tasks/install_tools.yml

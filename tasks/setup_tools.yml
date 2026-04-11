@@ -1,0 +1,52 @@
+---
+# --- 1. SYSTEM PACKAGES ---
+- name: Install Fedora native packages
+  ansible.builtin.dnf:
+    name: "{{ system_packages }}"
+    state: present
+  become: true
+  when: ansible_os_family == "RedHat"
+
+- name: Install Ubuntu/Debian native packages
+  ansible.builtin.apt:
+    name: "{{ system_packages }}"
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == "Debian"
+
+# --- 2. HOMEBREW PACKAGES ---
+- name: Install cross-platform tools via Homebrew
+  community.general.homebrew:
+    name: "{{ brew_packages }}"
+    state: present
+  become: false
+
+# --- 3. CARGO PACKAGES ---
+- name: Install cross-platform tools via Cargo
+  community.general.cargo:
+    name: "{{ item }}"
+  loop: "{{ cargo_packages }}"
+  become: false
+
+# --- 4. Setup Chezmoi and sync dotfiles ---
+- name: Install & Initialize Chezmoi
+  block:
+    - name: Install Chezmoi
+      ansible.builtin.command: "{{ linuxbrew_executable }} install chezmoi"
+      environment:
+        HOME: "/home/{{ user }}"
+      args:
+        executable: /bin/bash
+    - name: Initialize Chezmoi
+      ansible.builtin.command: "{{ linuxbrew_path }}/chezmoi init --apply https://github.com/lla1dlaw/.dotfiles.git"
+      environment:
+        HOME: "/home/{{ user }}"
+      args:
+        executable: /bin/bash
+
+
+# --- Install NeoVim ---
+- name: Install NeoVim with bob
+  ansible.builtin.shell:
+    cmd: bob use nightly

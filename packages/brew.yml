@@ -1,0 +1,22 @@
+---
+brew_packages:
+  - bat-extras
+  - ccache
+  - cmake
+  - fd
+  - ffmpeg-full
+  - fzf
+  - go
+  - gperf
+  - help2man
+  - imagemagick-full
+  - jq
+  - libmagic
+  - poppler
+  - prettier
+  - repomix
+  - resvg
+  - ripgrep
+  - sevenzip
+  - yazi
+  - zoxide

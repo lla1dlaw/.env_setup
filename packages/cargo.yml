@@ -1,0 +1,7 @@
+---
+cargo_packages:
+  - bob-nvim
+  - eza
+  - inlyne
+  - tree-sitter-cli
+  - trippy

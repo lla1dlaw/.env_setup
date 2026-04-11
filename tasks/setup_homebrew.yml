@@ -1,0 +1,26 @@
+---
+# --- HOMEBREW BOOTSTRAP ---
+
+- name: Check if HomeBrew is installed
+  ansible.builtin.stat:
+    path: /home/linuxbrew/.linuxbrew/bin/brew
+  register: brew
+
+- name: Download & Install HomeBrew
+  when: not brew.stat.exists
+  block:
+  - name: Fetch homebrew installer
+    ansible.builtin.uri:
+      url: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+      return_content: true
+    register: homebrew_installer
+
+  - name: Run homebrew installer
+    ansible.builtin.shell:
+      cmd: sh -s -- -y
+      stdin: "{{ homebrew_installer.content }}"
+
+- name: Set LinuxBrew Executable Path
+  ansible.builtin.set_fact:
+    linuxbrew_executable: /home/linuxbrew/.linuxbrew/bin/brew
+    linuxbrew_path: /home/linuxbrew/.linuxbrew/bin

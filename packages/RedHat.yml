@@ -1,0 +1,34 @@
+---
+dnf_packages:
+  # --- Development & Languages ---
+  - clang
+  - conan
+  - golang
+  - java-25-openjdk
+  - lua
+  - luarocks
+  - rustup
+
+  # --- Containers & Virtualization ---
+  - distrobox
+  - docker-ce
+  - docker-ce-cli
+  - docker-compose-plugin
+  - toolbox
+  - virt-manager
+
+  # --- System Utilities & Networking ---
+  - nmap
+  - nvme-cli
+  - qpdf
+  - tailscale
+  - tree
+  - xxd
+
+  # --- GUI Applications ---
+  - firefox
+  - gimp
+  - gparted
+  - mullvad-vpn
+  - nextcloud-client
+  
