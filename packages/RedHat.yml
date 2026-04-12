@@ -9,14 +9,6 @@ system_packages:
   - luarocks
   - rustup
 
-  # --- Containers & Virtualization ---
-  - distrobox
-  - docker-ce
-  - docker-ce-cli
-  - docker-compose-plugin
-  - toolbox
-  - virt-manager
-
   # --- System Utilities & Networking ---
   - age
   - nmap
@@ -31,6 +23,5 @@ system_packages:
   - firefox
   - gimp
   - gparted
-  - mullvad-vpn
   - nextcloud-client
   
