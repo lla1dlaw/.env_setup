@@ -1,11 +1,11 @@
 ---
-- name: Fetch rustup
-  ansible.builtin.uri:
+- name: Download Rustup installer
+  ansible.builtin.get_url:
     url: https://sh.rustup.rs
-    return_content: true
-  register: rustup_installer
+    dest: /tmp/rustup.sh
+    mode: '0700'
 
-- name: Run rustup installer
-  ansible.builtin.shell:
-    cmd: sh -s -- -y
-    stdin: "{{ rustup_installer.content }}"
+- name: Run Rustup installer
+  ansible.builtin.command: /usr/bin/env bash /tmp/rustup.sh -y
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"

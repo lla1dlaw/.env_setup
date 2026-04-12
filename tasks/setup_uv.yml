@@ -1,11 +1,11 @@
 ---
-- name: Fetch uv installer
-  ansible.builtin.uri:
+- name: Download UV installer
+  ansible.builtin.get_url:
     url: https://astral.sh/uv/install.sh
-    return_content: true
-  register: uv_installer
+    dest: /tmp/uv_install.sh
+    mode: '0700'
 
-- name: Run uv installer
-  ansible.builtin.shell:
-    cmd: sh -s -- -y
-    stdin: "{{ uv_installer.content }}"
+- name: Run UV installer
+  ansible.builtin.command: /usr/bin/env bash /tmp/uv_install.sh
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/uv"

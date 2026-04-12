@@ -85,6 +85,6 @@
 
 # --- INSTALL NEOVIM ---
 - name: Install NeoVim with bob
-  ansible.builtin.command: bob use nightly
+  ansible.builtin.command: "{{ ansible_env.HOME }}/.cargo/bin/bob use nightly"
   args:
     creates: "{{ ansible_env.HOME }}/.local/share/bob/nvim-bin/nvim"
