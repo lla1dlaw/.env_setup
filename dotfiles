@@ -41,7 +41,7 @@ fi
 # ==========================================
 if [ "$COMMAND" == "apply" ]; then
     echo "Enforcing desired state via Ansible..."
-    ansible-playbook "$HOME/.env_setup/main.yml" $VAULT_ARG
+    ansible-playbook "$HOME/.env_setup/main.yml" $VAULT_ARG --ask-become-pass
     exit 0
 fi
 
@@ -65,7 +65,7 @@ if [ "$COMMAND" == "init" ]; then
     fi
 
     echo "Running Ansible Playbook..."
-    ansible-playbook "$HOME/.env_setup/main.yml" $VAULT_ARG
+    ansible-playbook "$HOME/.env_setup/main.yml" $VAULT_ARG --ask-become-pass
 
     # Install this script globally
     mkdir -p "$HOME/.local/bin"
