@@ -2,18 +2,23 @@
 - name: Setup Personal Development Environment
   hosts: localhost
   connection: local
-  gather_facts: true # Required to get ansible_os_family
+  gather_facts: true
 
   vars_files:
     - packages/brew.yml
     - packages/cargo.yml
-    - "packages/{{ ansible_os_family }}.yml" # Dynamically targets OS
+    - "packages/{{ ansible_os_family }}.yml"
+    - "group_vars/all/vault.yml" # This is where your Deploy SSH Key will live
 
   tasks:
-    - name: Phase 1 - Bootstrap Package Managers
+    - name: Phase 1.1 - Bootstrap Homebrew
       ansible.builtin.include_tasks: tasks/setup_homebrew.yml
+
+    - name: Phase 1.2 - Bootstrap Rust
       ansible.builtin.include_tasks: tasks/setup_rust.yml
+
+    - name: Phase 1.3 - Bootstrap UV
       ansible.builtin.include_tasks: tasks/setup_uv.yml
 
-    - name: Phase 2 - Install All Packages
-      ansible.builtin.include_tasks: tasks/install_tools.yml
+    - name: Phase 2 - Install Tools & Setup System
+      ansible.builtin.include_tasks: tasks/setup_tools.yml

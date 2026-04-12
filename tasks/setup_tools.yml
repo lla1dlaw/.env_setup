@@ -1,5 +1,5 @@
 ---
-# --- 1. SYSTEM PACKAGES ---
+# --- SYSTEM PACKAGES ---
 - name: Install Fedora native packages
   ansible.builtin.dnf:
     name: "{{ system_packages }}"
@@ -15,38 +15,76 @@
   become: true
   when: ansible_os_family == "Debian"
 
-# --- 2. HOMEBREW PACKAGES ---
+# --- HOMEBREW PACKAGES ---
 - name: Install cross-platform tools via Homebrew
   community.general.homebrew:
     name: "{{ brew_packages }}"
     state: present
   become: false
 
-# --- 3. CARGO PACKAGES ---
+# --- CARGO PACKAGES ---
 - name: Install cross-platform tools via Cargo
   community.general.cargo:
     name: "{{ item }}"
   loop: "{{ cargo_packages }}"
   become: false
 
-# --- 4. Setup Chezmoi and sync dotfiles ---
-- name: Install & Initialize Chezmoi
-  block:
-    - name: Install Chezmoi
-      ansible.builtin.command: "{{ linuxbrew_executable }} install chezmoi"
-      environment:
-        HOME: "/home/{{ user }}"
-      args:
-        executable: /bin/bash
-    - name: Initialize Chezmoi
-      ansible.builtin.command: "{{ linuxbrew_path }}/chezmoi init --apply https://github.com/lla1dlaw/.dotfiles.git"
-      environment:
-        HOME: "/home/{{ user }}"
-      args:
-        executable: /bin/bash
+# --- SECURE GIT SSH CONFIGURATION ---
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
 
+- name: Deploy GitHub Deploy Key for Chezmoi
+  ansible.builtin.copy:
+    content: "{{ vault_github_deploy_key }}"
+    dest: "{{ ansible_env.HOME }}/.ssh/id_ed25519_dotfiles"
+    mode: '0600'
 
-# --- Install NeoVim ---
+- name: Configure SSH to use deploy key for GitHub
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    create: true
+    mode: '0600'
+    block: |
+      Host github.com
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_ed25519_dotfiles
+        IdentitiesOnly yes
+
+- name: Add GitHub to known_hosts to prevent prompt
+  ansible.builtin.known_hosts:
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    name: github.com
+    key: "{{ lookup('pipe', 'ssh-keyscan -t ed25519 github.com 2>/dev/null') }}"
+
+# --- SETUP CHEZMOI ---
+- name: Ensure Chezmoi config directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/chezmoi"
+    state: directory
+    mode: '0700'
+
+- name: Deploy Chezmoi age private key
+  ansible.builtin.copy:
+    content: "{{ vault_chezmoi_age_key }}"
+    dest: "{{ ansible_env.HOME }}/.config/chezmoi/key.txt"
+    mode: '0600'
+
+- name: Install Chezmoi
+  ansible.builtin.command: "{{ linuxbrew_executable }} install chezmoi"
+  args:
+    creates: "{{ linuxbrew_path }}/chezmoi"
+
+- name: Initialize and apply Chezmoi via SSH
+  ansible.builtin.command: "{{ linuxbrew_path }}/chezmoi init --apply git@github.com:lla1dlaw/.dotfiles.git"
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/share/chezmoi"
+
+# --- INSTALL NEOVIM ---
 - name: Install NeoVim with bob
-  ansible.builtin.shell:
-    cmd: bob use nightly
+  ansible.builtin.command: bob use nightly
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/share/bob/nvim-bin/nvim"

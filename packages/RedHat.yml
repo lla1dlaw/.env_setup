@@ -1,5 +1,5 @@
 ---
-dnf_packages:
+system_packages:
   # --- Development & Languages ---
   - clang
   - conan
@@ -18,12 +18,14 @@ dnf_packages:
   - virt-manager
 
   # --- System Utilities & Networking ---
+  - age
   - nmap
   - nvme-cli
   - qpdf
   - tailscale
   - tree
   - xxd
+  - pandoc
 
   # --- GUI Applications ---
   - firefox

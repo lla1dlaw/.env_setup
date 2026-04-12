@@ -1,0 +1,11 @@
+# packages/Debian.yml
+---
+system_packages:
+  - age
+  - build-essential
+  - curl
+  - git
+  - golang
+  - nmap
+  - tree
+  - pandoc

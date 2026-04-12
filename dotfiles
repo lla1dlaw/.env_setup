@@ -1,28 +1,82 @@
-#!/usr/env/bin bash
+#!/usr/bin/env bash
 
 set -e
 
-PACKAGE_MANAGER="other"
+COMMAND=$1
 
-if command -v apt > /dev/null 2>&1; then
-  PACKAGE_MANAGER=apt
-elif command -v dnf > /dev/null 2>&1; then
-  PACKAGE_MANAGER=dnf
-elif command -v yum > /dev/null 2>&1; then
-  PACKAGE_MANAGER=yum
-elif command -v zypper > /dev/null 2>&1; then
-  PACKAGE_MANAGER=zypper
-elif command -v pacman > /dev/null 2>&1; then
-  PACKAGE_MANAGER=pacman
-else
-    echo "No known package manager found"
+# Determine Vault Authentication Method
+VAULT_ARG=""
+if [ -z "$ANSIBLE_VAULT_PASSWORD_FILE" ]; then
+    VAULT_ARG="--ask-vault-pass"
+fi
+
+if [ -z "$COMMAND" ]; then
+    echo "Usage: dotfiles [init|apply|update]"
     exit 1
 fi
 
-if [ -x "$(command -v ansible)" ]; do 
-  sudo "$(PACKAGE_MANAGER)" -y update 
-  sudo "$(PACKAGE_MANAGER)" install -y ansible 
+# ==========================================
+# Command: UPDATE
+# Syncs local changes to Chezmoi and pushes
+# ==========================================
+if [ "$COMMAND" == "update" ]; then
+    echo "Syncing local changes to Chezmoi and pushing to GitHub..."
+    
+    chezmoi re-add
+    chezmoi cd -- git add .
+    
+    if ! chezmoi cd -- git diff-index --quiet HEAD; then
+        chezmoi cd -- git commit -m "Auto-sync dotfiles: $(date +'%Y-%m-%d %H:%M:%S')"
+        chezmoi cd -- git push origin main
+        echo "Successfully pushed changes to GitHub."
+    else
+        echo "No changes detected. Everything is up to date."
+    fi
+    exit 0
 fi
 
-ansible-playbook main.yml
+# ==========================================
+# Command: APPLY
+# Enforces desired state via Ansible
+# ==========================================
+if [ "$COMMAND" == "apply" ]; then
+    echo "Enforcing desired state via Ansible..."
+    ansible-playbook "$HOME/.env_setup/main.yml" $VAULT_ARG
+    exit 0
+fi
 
+# ==========================================
+# Command: INIT
+# Installs Ansible if missing and runs setup
+# ==========================================
+if [ "$COMMAND" == "init" ]; then
+    echo "Initializing fresh system configuration..."
+
+    if ! command -v ansible-playbook >/dev/null 2>&1; then
+        echo "Installing Ansible..."
+        if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get install -y ansible
+        elif command -v dnf >/dev/null 2>&1; then
+            sudo dnf install -y ansible
+        else
+            echo "Error: Ensure Ansible is installed before running init."
+            exit 1
+        fi
+    fi
+
+    echo "Running Ansible Playbook..."
+    ansible-playbook "$HOME/.env_setup/main.yml" $VAULT_ARG
+
+    # Install this script globally
+    mkdir -p "$HOME/.local/bin"
+    if [ "$(realpath "$0")" != "$(realpath "$HOME/.local/bin/dotfiles")" ]; then
+        cp "$0" "$HOME/.local/bin/dotfiles"
+        chmod +x "$HOME/.local/bin/dotfiles"
+        echo "'dotfiles' command installed to ~/.local/bin/dotfiles"
+    fi
+    exit 0
+fi
+
+echo "Unknown command: $COMMAND"
+echo "Usage: dotfiles [init|apply|update]"
+exit 1
