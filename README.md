@@ -15,4 +15,4 @@ Before bootstrapping a new machine, ensure you have the following configured in 
 To provision a completely fresh Linux system, run the following command. This script will install necessary prerequisites, download the Bitwarden CLI, authenticate you to retrieve the deployment secrets, clone this repository, and execute the Ansible playbook entirely headlessly.
 
 ```bash
-curl -sL [https://raw.githubusercontent.com/lla1dlaw/.env_setup/main/scripts/bootstrap.sh](https://raw.githubusercontent.com/lla1dlaw/.env_setup/main/scripts/bootstrap.sh) | bash
+/usr/bin/env bash -c "$(curl -fsSL https://raw.githubusercontent.com/lla1dlaw/.env_setup/main/scripts/bootstrap.sh)"
