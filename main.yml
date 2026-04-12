@@ -4,6 +4,9 @@
   connection: local
   gather_facts: true
 
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.cargo/bin:/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+
   vars_files:
     - packages/brew.yml
     - packages/cargo.yml
