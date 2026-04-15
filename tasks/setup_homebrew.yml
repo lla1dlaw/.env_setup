@@ -7,6 +7,7 @@
 
 - name: Run Homebrew installer
   ansible.builtin.command: /usr/bin/env bash /tmp/install_homebrew.sh
+  become: true
   environment:
     NONINTERACTIVE: "1"
   args:
@@ -16,3 +17,4 @@
   ansible.builtin.set_fact:
     linuxbrew_executable: /home/linuxbrew/.linuxbrew/bin/brew
     linuxbrew_path: /home/linuxbrew/.linuxbrew/bin
+  become: true
