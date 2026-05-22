@@ -5,15 +5,17 @@
   gather_facts: true
 
   environment:
-    PATH: "{{ ansible_env.HOME }}/.cargo/bin:/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
-
+    PATH: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin:/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['HOME'] }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
+    
   vars_files:
     - packages/brew.yml
     - packages/cargo.yml
-    - "packages/{{ ansible_os_family }}.yml"
     - "group_vars/all/vault.yml" # This is where your Deploy SSH Key will live
 
   tasks:
+    - name: Load OS-specific packages
+      ansible.builtin.include_vars: "packages/{{ ansible_facts['os_family'] }}.yml"
+
     - name: Phase 1.1 - Bootstrap Homebrew
       ansible.builtin.include_tasks: tasks/setup_homebrew.yml
 

@@ -8,4 +8,4 @@
 - name: Run Rustup installer
   ansible.builtin.command: /usr/bin/env bash /tmp/rustup.sh -y
   args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/rustup"

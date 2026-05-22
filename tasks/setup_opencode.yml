@@ -8,4 +8,4 @@
 - name: Run OpenCode installer
   ansible.builtin.command: /usr/bin/env bash /tmp/opencode_install.sh
   args:
-    creates: "{{ ansible_env.HOME }}/.opencode/bin/opencode"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.opencode/bin/opencode"

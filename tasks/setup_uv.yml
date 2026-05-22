@@ -8,4 +8,4 @@
 - name: Run UV installer
   ansible.builtin.command: /usr/bin/env bash /tmp/uv_install.sh
   args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/uv"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/uv"

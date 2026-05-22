@@ -7,7 +7,6 @@
 
 - name: Run Homebrew installer
   ansible.builtin.command: /usr/bin/env bash /tmp/install_homebrew.sh
-  become: true
   environment:
     NONINTERACTIVE: "1"
   args:
